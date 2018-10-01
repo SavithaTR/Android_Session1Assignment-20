@@ -1,0 +1,79 @@
+a. Create classification model using different random forest models
+Ans: library(dplyr)
+ RandomForest(formula, ntree=n, mtry=FALSE, maxnodes = NULL)
+RandomForest(formula, ntree=10, mtry=1)
+RandomForest(formula, ntree=10, mtry=2)
+trainControl(method = "cv", number = n, search ="grid")
+trControl <- trainControl(method = "cv",
+    number = 10,
+    search = "grid")
+ 
+ 836 samples
+   7 predictor
+   2 classes: 'No', 'Yes'  
+ No pre-processing
+ Resampling: Cross-Validated (10 fold) 
+ Summary of sample sizes: 753, 752, 753, 752, 752, 752, ... 
+ Resampling results across tuning parameters: 
+  mtry  Accuracy   Kappa    
+    2    0.7919248  0.5536486
+    6    0.7811245  0.5391611
+   10    0.7572002  0.4939620
+ 
+ Accuracy was used to select the optimal model using  the largest value.
+ The final value used for the model was mtry = 
+
+b. Verify model goodness of fit
+Ans: x <- rgamma(num_of_samples, shape = 10, scale = 3)
+x <- x + rnorm(length(x), mean=0, sd = .1)
+p1 <- hist(x,breaks=50, include.lowest=FALSE, right=FALSE)
+library('zoo')
+breaks_cdf <- pgamma(p1$breaks, shape=10, scale=3)
+null.probs <- rollapply(breaks_cdf, 2, function(x) x[2]-x[1])
+num_of_samples = 100000
+y <- rgamma(num_of_samples, shape = 10, scale = 3)
+res <- CramerVonMisesTwoSamples(x,y)
+p-value = 1/6*exp(-res)
+num_of_samples = 100000
+y <- rgamma(num_of_samples, shape = 10, scale = 3)
+result = ks.test(x, y)
+
+c. Apply all the model validation techniques
+Ans: sample <- sample.int(n = nrow(data), size = floor(.50*nrow(data)), replace = F)
+train <- data[sample, ]
+test  <- data[-sample, ]
+score = list()
+
+LOOCV_function = function(x,label){
+ for(i in 1:nrow(x)){
+ training = x[-i,]
+ model = #... train model on training
+ validation = x[i,]
+ pred = predict(model, validation[,setdiff(names(validation),label)])
+ score[[i]] = rmse(pred, validation[[label]]) # score/error of ith fold
+ }
+ return(unlist(score)) # returns a vector
+ }
+library(fpp)
+library(forecast)
+e <- tsCV(ts, Arima(x, order=c(2,0,0), h=1) #CV for arima model
+sqrt(mean(e^2, na.rm=TRUE)) 
+
+d. Make conclusions
+Ans: Overfitting and methods like cross-validation to avoid overfitting. We also looked at different cross-validation
+ methods like validation set approach, LOOCV, k-fold cross validation, stratified k-fold and so on, followed by each 
+approach’s implementation in Python and R performed on the Iris dataset.
+After k-fold cross validation, we’ll get k different model estimation errors (e1, e2 …..ek). In an ideal scenario, 
+these error values should sum up to zero. To return the model’s bias, we take the average of all the errors. Lower the average value, better the model.
+Similarly for calculating the model variance, we take standard deviation of all the errors. A low value of standard deviation 
+suggests our model does not vary a lot with different subsets of training data.
+We should focus on achieving a balance between bias and variance. This can be done by reducing the variance and 
+controlling bias to an extent. It’ll result in a better predictive model. This trade-off usually leads to
+ building less complex predictive models as well. For understanding bias-variance trade-off in more depth, please refer to section 9 of this article.
+
+e. Plot importance of variables
+Ans: set.seed(4543)
+data(mtcars)
+mtcars.rf <- randomForest(mpg ~ ., data=mtcars, ntree=1000, keep.forest=FALSE,
+                          importance=TRUE)
+varImpPlot(mtcars.rf)
